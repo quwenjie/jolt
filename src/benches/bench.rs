@@ -55,7 +55,14 @@ macro_rules! single_pass_lasso {
       let mut r: Vec<F> = gen_random_point::<F>(log_s);
       for i in 0..log_s
       {
-        r[i]=F::from_str("150").unwrap();
+        if(i<5)
+        {  
+          r[i]=F::from_str("150").unwrap();
+        }
+        else
+        {
+          r[i]=F::from_str("158").unwrap();
+        }
         println!("{}",r[i]);
       }
       let nz = gen_indices_ours::<C>(S, M);
