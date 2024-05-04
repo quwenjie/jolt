@@ -4,7 +4,7 @@ use crate::{
   lasso::{densified::DensifiedRepresentation, surge::SparsePolynomialEvaluationProof},
   utils::random::RandomTape,
 };
-use ark_curve25519::{EdwardsProjective, Fr};
+use ark_bls12_381::{G1Projective, Fr};
 use ark_std::One;
 use ark_ff::PrimeField;
 use ark_std::{log2, test_rng};
@@ -65,6 +65,9 @@ macro_rules! single_pass_lasso {
         }
         println!("{}",r[i]);
       }
+      let a:F=F::from_str("52435875175126190479447740508185965837690552500527637822603658699938581184504").unwrap() ;
+      let b:F=F::from_str("14").unwrap();
+      println!("haha :{} ",a+b);
       let nz = gen_indices_ours::<C>(S, M);
 
       // Prove
@@ -92,86 +95,17 @@ macro_rules! single_pass_lasso {
 
 #[derive(Debug, Clone, clap::ValueEnum)]
 pub enum BenchType {
-  JoltDemo,
   Halo2Comparison,
 }
 
 #[allow(unreachable_patterns)] // good errors on new BenchTypes
 pub fn benchmarks(bench_type: BenchType) -> Vec<(tracing::Span, fn())> {
   match bench_type {
-    BenchType::JoltDemo => jolt_demo_benchmarks(),
     BenchType::Halo2Comparison => halo2_comparison_benchmarks(),
     _ => panic!("BenchType does not have a mapping"),
   }
 }
 
-fn jolt_demo_benchmarks() -> Vec<(tracing::Span, fn())> {
-  vec![
-    single_pass_lasso!(
-      "And(2^128, 2^10)",
-      Fr,
-      EdwardsProjective,
-      AndSubtableStrategy,
-      /* C= */ 8,
-      /* M= */ 1 << 16,
-      /* S= */ 1 << 10
-    ),
-    single_pass_lasso!(
-      "And(2^128, 2^12)",
-      Fr,
-      EdwardsProjective,
-      AndSubtableStrategy,
-      /* C= */ 8,
-      /* M= */ 1 << 16,
-      /* S= */ 1 << 12
-    ),
-    single_pass_lasso!(
-      "And(2^128, 2^14)",
-      Fr,
-      EdwardsProjective,
-      AndSubtableStrategy,
-      /* C= */ 8,
-      /* M= */ 1 << 16,
-      /* S= */ 1 << 14
-    ),
-    single_pass_lasso!(
-      "And(2^128, 2^16)",
-      Fr,
-      EdwardsProjective,
-      AndSubtableStrategy,
-      /* C= */ 8,
-      /* M= */ 1 << 16,
-      /* S= */ 1 << 16
-    ),
-    single_pass_lasso!(
-      "And(2^128, 2^18)",
-      Fr,
-      EdwardsProjective,
-      AndSubtableStrategy,
-      /* C= */ 8,
-      /* M= */ 1 << 16,
-      /* S= */ 1 << 18
-    ),
-    single_pass_lasso!(
-      "And(2^128, 2^20)",
-      Fr,
-      EdwardsProjective,
-      AndSubtableStrategy,
-      /* C= */ 8,
-      /* M= */ 1 << 16,
-      /* S= */ 1 << 20
-    ),
-    single_pass_lasso!(
-      "And(2^128, 2^22)",
-      Fr,
-      EdwardsProjective,
-      AndSubtableStrategy,
-      /* C= */ 8,
-      /* M= */ 1 << 16,
-      /* S= */ 1 << 22
-    ),
-  ]
-}
 
 fn halo2_comparison_benchmarks() -> Vec<(tracing::Span, fn())> 
 {
@@ -179,7 +113,7 @@ fn halo2_comparison_benchmarks() -> Vec<(tracing::Span, fn())>
     single_pass_lasso!(
       "Range check ",
       Fr,
-      EdwardsProjective,
+      G1Projective,
       RangeCheckSubtableStrategy::<24>,
       /* C= */ 3,
       /* M= */ 1 << 16,
