@@ -184,7 +184,8 @@ where
   }
 
   #[tracing::instrument(skip_all, name = "Subtables.compute_sumcheck_claim")]
-  pub fn compute_sumcheck_claim(&self, eq: &EqPolynomial<F>) -> F {
+  pub fn compute_sumcheck_claim(&self, eq: &EqPolynomial<F>) -> F 
+  {
     let g_operands = self.lookup_polys.clone();
     let hypercube_size = g_operands[0].len();
     g_operands

@@ -141,7 +141,7 @@ where
 
     let eq = EqPolynomial::new(r.clone());
     let claimed_eval = subtables.compute_sumcheck_claim(&eq);
-
+    println!("!!!!! v: {}",claimed_eval);
     <Transcript as ProofTranscript<G>>::append_scalar(
       transcript,
       b"claim_eval_scalar_product",

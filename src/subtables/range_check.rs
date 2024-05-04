@@ -17,6 +17,11 @@ impl<F: PrimeField, const C: usize, const M: usize, const LOG_R: usize> Subtable
 
     let full: Vec<F> = (0..M).map(|i| F::from(i as u64)).collect();
 
+    let full_1: Vec<F> = (0..M).map(|i| F::from(i as u64)).collect();
+
+    let full_2: Vec<F> = (0..M).map(|i| F::from(i as u64)).collect();
+
+    /*
     let cutoff = 1 << (LOG_R % log2(M) as usize);
     let remainder: Vec<F> = (0..M)
       .map(|i| {
@@ -27,49 +32,33 @@ impl<F: PrimeField, const C: usize, const M: usize, const LOG_R: usize> Subtable
         }
       })
       .collect();
+    */
 
-    let zeros: Vec<F> = vec![F::zero(); M];
+    //let zeros: Vec<F> = vec![F::zero(); M];
 
-    [full, remainder, zeros]
+    [full, full_1,full_2]
   }
 
-  fn evaluate_subtable_mle(subtable_index: usize, point: &[F]) -> F {
-    if subtable_index == 0 {
+  fn evaluate_subtable_mle(subtable_index: usize, point: &[F]) -> F 
+  {
+    //if subtable_index == 0 
       let b = point.len();
       let mut result = F::zero();
       for i in 0..b {
         result += F::from(1u64 << (i)) * point[b - i - 1];
       }
       result
-    } else if subtable_index == 1 {
-      let b = point.len();
-      let cutoff = LOG_R % (log2(M) as usize);
-      let mut result = F::zero();
-      for i in 0..b {
-        if i < cutoff {
-          result += F::from(1u64 << (i)) * point[b - i - 1];
-        } else {
-          result *= F::one() - point[b - i - 1];
-        }
-      }
-      result
-    } else {
-      assert_eq!(subtable_index, 2);
-      F::zero()
-    }
+
   }
 
   fn memory_to_subtable_index(memory_index: usize) -> usize {
     let log_m = log2(M) as usize;
-    if memory_index * log_m > LOG_R {
-      2
-    } else {
-      usize::from((memory_index + 1) * log_m > LOG_R)
-    }
+    memory_index / log_m 
   }
 
   fn memory_to_dimension_index(memory_index: usize) -> usize {
-    memory_index
+    let log_m = log2(M) as usize;
+    memory_index % log_m
   }
 
   /// Combine AND table subtable evaluations

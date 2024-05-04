@@ -5,21 +5,15 @@ use crate::{
   utils::random::RandomTape,
 };
 use ark_curve25519::{EdwardsProjective, Fr};
+use ark_std::One;
 use ark_ff::PrimeField;
 use ark_std::{log2, test_rng};
 use merlin::Transcript;
 use rand_chacha::rand_core::RngCore;
+use std::str::FromStr;
 use crate::subtables::range_check::RangeCheckSubtableStrategy;
 
-pub fn gen_indices<const C: usize>(sparsity: usize, memory_size: usize) -> Vec<[usize; C]> {
-  let mut rng = test_rng();
-  let mut all_indices: Vec<[usize; C]> = Vec::new();
-  for _ in 0..sparsity {
-    let indices = [rng.next_u64() as usize % memory_size; C];
-    all_indices.push(indices);
-  }
-  all_indices
-}
+
 
 pub fn gen_random_points<F: PrimeField, const C: usize>(memory_bits: usize) -> [Vec<F>; C] {
   std::array::from_fn(|_| gen_random_point(memory_bits))
@@ -32,6 +26,17 @@ pub fn gen_random_point<F: PrimeField>(memory_bits: usize) -> Vec<F> {
     r_i.push(F::rand(&mut rng));
   }
   r_i
+}
+pub fn gen_indices_ours<const C: usize>(sparsity: usize, memory_size: usize) -> Vec<[usize; C]> {
+  let mut rng = test_rng();
+  let mut all_indices: Vec<[usize; C]> = Vec::new();
+  for i in 0..sparsity 
+  {
+    let mut indices = [0 as usize % memory_size; C];
+    indices[0]=i+1;
+    all_indices.push(indices);
+  }
+  all_indices
 }
 
 macro_rules! single_pass_lasso {
@@ -47,9 +52,13 @@ macro_rules! single_pass_lasso {
       let log_m = log2(M) as usize;
       let log_s: usize = log2($sparsity) as usize;
 
-      let r: Vec<F> = gen_random_point::<F>(log_s);
-
-      let nz = gen_indices::<C>(S, M);
+      let mut r: Vec<F> = gen_random_point::<F>(log_s);
+      for i in 0..log_s
+      {
+        r[i]=F::from_str("150").unwrap();
+        println!("{}",r[i]);
+      }
+      let nz = gen_indices_ours::<C>(S, M);
 
       // Prove
       let mut dense: DensifiedRepresentation<F, C> =
@@ -58,6 +67,7 @@ macro_rules! single_pass_lasso {
       let commitment = dense.commit::<$group>(&gens);
       let mut random_tape = RandomTape::new(b"proof");
       let mut prover_transcript = Transcript::new(b"example");
+      
       let proof = SparsePolynomialEvaluationProof::<G, C, M, SubtableStrategy>::prove(
         &mut dense,
         &r,
@@ -156,13 +166,14 @@ fn jolt_demo_benchmarks() -> Vec<(tracing::Span, fn())> {
   ]
 }
 
-fn halo2_comparison_benchmarks() -> Vec<(tracing::Span, fn())> {
+fn halo2_comparison_benchmarks() -> Vec<(tracing::Span, fn())> 
+{
   vec![
     single_pass_lasso!(
       "Range check ",
       Fr,
       EdwardsProjective,
-      RangeCheckSubtableStrategy::<40>,
+      RangeCheckSubtableStrategy::<24>,
       /* C= */ 3,
       /* M= */ 1 << 16,
       /* S= */ 1 << 10
