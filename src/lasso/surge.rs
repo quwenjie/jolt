@@ -15,7 +15,11 @@ use crate::utils::math::Math;
 use crate::utils::random::RandomTape;
 use crate::utils::transcript::{AppendToTranscript, ProofTranscript};
 use ark_ec::CurveGroup;
-
+use ark_bls12_381::{G1Projective, Fr};
+use ark_bls12_381::FrConfig;
+use ark_ff::MontBackend;
+use std::str::FromStr;
+use ark_std::ops::Add;
 use ark_serialize::*;
 
 use ark_std::log2;
@@ -124,7 +128,7 @@ where
     random_tape: &mut RandomTape<G>,
   ) -> Self
   where
-    [(); S::NUM_SUBTABLES]: Sized,
+    [(); S::NUM_SUBTABLES]: Sized
   {
     <Transcript as ProofTranscript<G>>::append_protocol_name(transcript, Self::protocol_name());
 
@@ -140,7 +144,9 @@ where
     };
 
     let eq = EqPolynomial::new(r.clone());
-    let claimed_eval = subtables.compute_sumcheck_claim(&eq);
+    let mut claimed_eval = subtables.compute_sumcheck_claim(&eq);
+    
+    //claimed_eval=claimed_eval+claimed_eval;
     println!("!!!!! v: {}",claimed_eval);
     <Transcript as ProofTranscript<G>>::append_scalar(
       transcript,

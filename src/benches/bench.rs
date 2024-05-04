@@ -53,6 +53,7 @@ macro_rules! single_pass_lasso {
       let log_s: usize = log2($sparsity) as usize;
 
       let mut r: Vec<F> = gen_random_point::<F>(log_s);
+      /*
       for i in 0..log_s
       {
         if(i<5)
@@ -65,6 +66,7 @@ macro_rules! single_pass_lasso {
         }
         println!("{}",r[i]);
       }
+      */
       let a:F=F::from_str("52435875175126190479447740508185965837690552500527637822603658699938581184504").unwrap() ;
       let b:F=F::from_str("14").unwrap();
       println!("haha :{} ",a+b);
