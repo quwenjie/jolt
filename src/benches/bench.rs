@@ -34,6 +34,10 @@ pub fn gen_indices_ours<const C: usize>(sparsity: usize, memory_size: usize) -> 
   {
     let mut indices = [0 as usize % memory_size; C];
     indices[0]=i+1;
+    if(i==0)
+    {
+      indices[1]=1;
+    }
     all_indices.push(indices);
   }
   all_indices
@@ -53,10 +57,10 @@ macro_rules! single_pass_lasso {
       let log_s: usize = log2($sparsity) as usize;
 
       let mut r: Vec<F> = gen_random_point::<F>(log_s);
-      /*
+      
       for i in 0..log_s
       {
-        if(i<5)
+        if(i<3)
         {  
           r[i]=F::from_str("150").unwrap();
         }
@@ -66,7 +70,7 @@ macro_rules! single_pass_lasso {
         }
         println!("{}",r[i]);
       }
-      */
+      
       let a:F=F::from_str("52435875175126190479447740508185965837690552500527637822603658699938581184504").unwrap() ;
       let b:F=F::from_str("14").unwrap();
       println!("haha :{} ",a+b);
@@ -119,7 +123,7 @@ fn halo2_comparison_benchmarks() -> Vec<(tracing::Span, fn())>
       RangeCheckSubtableStrategy::<24>,
       /* C= */ 3,
       /* M= */ 1 << 16,
-      /* S= */ 1 << 10
+      /* S= */ 1 << 6
     ),
   ]
 }
